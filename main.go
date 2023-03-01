@@ -24,6 +24,7 @@ func main(){
     router.GET("/albums", getAlbums)
 	router.GET("/albums/:id", getAlbumByID)
 	router.POST("/albums", postAlbums)
+	router.PUT("/albums/:id", putAlbumByID)
 
     router.Run("localhost:8080")
 }
@@ -54,4 +55,25 @@ func getAlbumByID(c *gin.Context){
 
 	}
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
+}
+
+func putAlbumByID(c *gin.Context){
+	var newAlbum album
+
+	id := c.Param("id")
+
+	if err := c.BindJSON(&newAlbum); err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Error"})
+		return
+	}
+
+	for index, album := range albums {
+		if album.ID == id {
+			albums[index] = newAlbum
+			c.IndentedJSON(http.StatusOK, album)
+			return
+		}
+	}
+
+	c.IndentedJSON(http.StatusBadRequest,  gin.H{"message": "Album not exist"})
 }
